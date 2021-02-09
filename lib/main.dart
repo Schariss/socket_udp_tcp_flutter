@@ -54,6 +54,15 @@ class _MyHomePageState extends State<MyHomePage> {
         .then((ServerSocket server) {
       server.listen(handleClient);
     });
+    Socket.connect(InternetAddress.loopbackIPv4, 4567).then((socket) {
+      print('Connected to: '
+          '${socket.remoteAddress.address}:${socket.remotePort}');
+      socket.listen((data) {}, onDone: () {
+        print("Done");
+        socket.destroy();
+      });
+      _socket = socket;
+    });
   }
 
   void handleClient(Socket client) {
@@ -67,30 +76,12 @@ class _MyHomePageState extends State<MyHomePage> {
           _counter++;
         });
       }
-      // if (clientData == 'fin') {
-      //   client.close();
-      // }
     });
-    client.close();
-    //client.write("Hello from simple server!\n");
+    // client.close();
   }
 
   void tcpClient() {
-    Socket.connect(InternetAddress.loopbackIPv4, 4567).then((socket) {
-      print('Connected to: '
-          '${socket.remoteAddress.address}:${socket.remotePort}');
-      // Establish the onData, and onDone callbacks
-      socket.listen((data) {
-        String serverData = new String.fromCharCodes(data).trim();
-        // print(serverData);
-      }, onDone: () {
-        print("Done");
-        socket.destroy();
-      });
-      //Send the request
-      socket.write("Increment the counter");
-    });
-
+    _socket.write("Increment the counter");
     //String indexRequest = 'GET / HTTP/1.1\nConnection: close\n\n';
     //opening a connection to google.com on port 80
     // Socket.connect("google.com", 80).then((socket) {
